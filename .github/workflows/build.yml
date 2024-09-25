@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up dependencies
         run: |
@@ -26,7 +26,7 @@ jobs:
           ./build-deb.sh
       
       - name: Upload built .deb package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: amazon-efs-utils
           path: ./build/amazon-efs-utils*.deb
