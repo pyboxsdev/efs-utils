@@ -1,12 +1,10 @@
-name: Build Amazon EFS Utils
+name: Build and Release Amazon EFS Utils
 
 on:
   push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    tags:
+      - 'v*'  # Trigger when pushing a tag starting with 'v'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,8 +23,23 @@ jobs:
         run: |
           ./build-deb.sh
       
-      - name: Upload built .deb package
-        uses: actions/upload-artifact@v3
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: amazon-efs-utils
-          path: ./build/amazon-efs-utils*.deb
+          tag_name: ${{ github.ref }}
+          release_name: "Amazon EFS Utils ${{ github.ref }}"
+          draft: false
+          prerelease: false
+
+      - name: Upload .deb to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./build/amazon-efs-utils*.deb
+          asset_name: amazon-efs-utils_${{ github.ref }}.deb
+          asset_content_type: application/octet-stream
